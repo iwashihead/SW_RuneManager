@@ -85,6 +85,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 	public bool sortOrder;
 
 	private int runeCount;
+	public bool refreshFlag;
 
 	public void RuneListInitialize()
 	{
@@ -107,39 +108,39 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 	public void RuneListAwake()
 	{
 		runeItems = new List<RuneItem>();
-		toggleNo1.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleNo2.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleNo3.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleNo4.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleNo5.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleNo6.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleEnergy.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleFatal.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleBlade.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleRage.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleSwift.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleFocus.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleGuard.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleEndure.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleViolent.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleWill.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleNemesis.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleShield.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleRevenge.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleDespair.onValueChanged.AddListener(val=>{ Refresh(); });
-		toggleVampire.onValueChanged.AddListener(val=>{ Refresh(); });
-		tagFindInput.onEndEdit.AddListener(val=>{ Refresh(); });
-		page1Button.onClick.AddListener(()=>{ currentPage-=2; Refresh(); });
-		page2Button.onClick.AddListener(()=>{ currentPage-=1; Refresh(); });
-		page3Button.onClick.AddListener(()=>{ Refresh(); });
-		page4Button.onClick.AddListener(()=>{ currentPage+=1; Refresh(); });
-		page5Button.onClick.AddListener(()=>{ currentPage+=2; Refresh(); });
+		toggleNo1.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleNo2.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleNo3.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleNo4.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleNo5.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleNo6.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleEnergy.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleFatal.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleBlade.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleRage.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleSwift.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleFocus.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleGuard.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleEndure.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleViolent.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleWill.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleNemesis.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleShield.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleRevenge.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleDespair.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		toggleVampire.onValueChanged.AddListener(val=>{ refreshFlag=true; });
+		tagFindInput.onEndEdit.AddListener(val=>{ refreshFlag=true; });
+		page1Button.onClick.AddListener(()=>{ currentPage-=2; refreshFlag=true; });
+		page2Button.onClick.AddListener(()=>{ currentPage-=1; refreshFlag=true; });
+		page3Button.onClick.AddListener(()=>{ refreshFlag=true; });
+		page4Button.onClick.AddListener(()=>{ currentPage+=1; refreshFlag=true; });
+		page5Button.onClick.AddListener(()=>{ currentPage+=2; refreshFlag=true; });
 	}
 
 	/// <summary>
-	/// 更新、ソートの条件などが変わったら呼ぶべし
+	/// 更新処理　LateUpdateでrefreshFlagが立っていたときに呼び出し
 	/// </summary>
-	public void Refresh()
+	void Refresh()
 	{
 		// 表示中のリストは削除
 		if (runeItems == null) { runeItems = new List<RuneItem>(); }
@@ -264,6 +265,8 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 
 			runeItems.Add(item);
 		}
+
+		refreshFlag = false;
 	}
 
 	public void SortRune(ref List<RuneData> runeList, bool sortOrder)
@@ -342,7 +345,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		toggleNo6.isOn = true;
 
 		// 更新
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void ClearNoFilter()
@@ -355,7 +358,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		toggleNo6.isOn = false;
 
 		// 更新
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void MarkAllRuneFilter()
@@ -377,7 +380,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		toggleVampire.isOn = true;
 
 		// 更新
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void ClearRuneFilter()
@@ -399,7 +402,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		toggleVampire.isOn = false;
 
 		// 更新
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortToral()
@@ -411,7 +414,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortHP()
@@ -423,7 +426,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortAtk()
@@ -435,7 +438,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortDef()
@@ -447,7 +450,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortSpd()
@@ -459,7 +462,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortCri()
@@ -471,7 +474,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortDmg()
@@ -483,7 +486,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortAcc()
@@ -495,7 +498,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnSortRes()
@@ -507,32 +510,32 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			sortOrder = !sortOrder;
 		}
 
-		Refresh();
+		refreshFlag=true;
 	}
 
 
 	public void OnPageNext()
 	{
 		currentPage++;
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnPageEnd()
 	{
 		int maxPage = Mathf.CeilToInt((float)runeCount / PAGE_LIST_NUM) - 1;
 		currentPage = maxPage;
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnPageBack()
 	{
 		currentPage--;
-		Refresh();
+		refreshFlag=true;
 	}
 
 	public void OnPageFirst()
 	{
 		currentPage = 0;
-		Refresh();
+		refreshFlag=true;
 	}
 }

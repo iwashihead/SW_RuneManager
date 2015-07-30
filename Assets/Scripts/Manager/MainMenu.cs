@@ -41,7 +41,8 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			} else {
 				// 成功
 				DialogCanvas.Create("データの読み込みに成功しました!", Color.black, ()=>{
-					if (runeListCanvas.enabled) { Refresh(); }
+					if (runeListCanvas.enabled) { refreshFlag=true; }
+					Data.Save();
 				});
 			}
 		}, (value) => {

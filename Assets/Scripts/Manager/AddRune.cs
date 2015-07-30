@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using SW;
+using Kender.uGUI;
 
 // ルーン追加ウインドウ関連処理
 public partial class RuneManager : SingletonObject<RuneManager> {
@@ -11,21 +12,27 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 	public Image addRuneImage;
 	public Text addRuneNameText;
 	public InputField addRuneFreeCommentInput;
-	public InputField addRuneKindInput;
-	public InputField addRuneNoInput;
-	public InputField addRuneRarityInput;
-	public InputField addRuneLevelInput;
+	public ComboBox addRuneKindSelector;
+	public ComboBox addRuneNoSelector;
+	public ComboBox addRuneRaritySelector;
+	public ComboBox addRuneLevelSelector;
 	public InputField addRuneMainOPInput;
+	public ComboBox addRuneMainOPSelector;
 	public Text addRuneMainOPText;
 	public InputField addRuneSubOPInput;
+	public ComboBox addRuneSubOPSelector;
 	public Text addRuneSubOPText;
 	public InputField addRuneBonus1OPInput;
+	public ComboBox addRuneBonus1OPSelector;
 	public Text addRuneBonus1OPText;
 	public InputField addRuneBonus2OPInput;
+	public ComboBox addRuneBonus2OPSelector;
 	public Text addRuneBonus2OPText;
 	public InputField addRuneBonus3OPInput;
+	public ComboBox addRuneBonus3OPSelector;
 	public Text addRuneBonus3OPText;
 	public InputField addRuneBonus4OPInput;
+	public ComboBox addRuneBonus4OPSelector;
 	public Text addRuneBonus4OPText;
 	public Button addRuneOKButton;
 
@@ -49,7 +56,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		// なしの場合は空文字を返す
 		if (option.param == RuneParam.None) { return ""; }
 
-		string ret = string.Format("{0}+{1}", option.param.ToJapaneseString(), option.value);
+		string ret = string.Format("{0}+{1}", option.param.ToJpnString(), option.value);
 
 		// %を削除
 		ret = ret.Replace("%","");
@@ -72,22 +79,28 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 	void AddRuneAwake()
 	{
 		// イベントリスナー登録
-		addRuneKindInput.onEndEdit.AddListener(val=>{ OnKindChanged(val); });
-		addRuneNoInput.onEndEdit.AddListener(val=>{ OnNoChanged(val); });
-		addRuneRarityInput.onEndEdit.AddListener(val=>{ OnRarityChanged(val); });
-		addRuneLevelInput.onEndEdit.AddListener(val=>{ OnLevelChanged(val); });
+		addRuneKindSelector.OnSelectionChanged = OnKindChanged;
+		addRuneNoSelector.OnSelectionChanged = OnNoChanged;
+		addRuneRaritySelector.OnSelectionChanged = OnRarityChanged;
+		addRuneLevelSelector.OnSelectionChanged = OnLevelChanged;
 		addRuneMainOPInput.onEndEdit.AddListener(val=>{ OnOptionMainChanged(val); });
+		addRuneMainOPSelector.OnSelectionChanged = OnMainParamChanged;
 		addRuneSubOPInput.onEndEdit.AddListener(val=>{ OnOptionSubChanged(val); });
+		addRuneSubOPSelector.OnSelectionChanged = OnSubParamChanged;
 		addRuneBonus1OPInput.onEndEdit.AddListener(val=>{ OnBonus1OPChanged(val); });
+		addRuneBonus1OPSelector.OnSelectionChanged = OnBonus1ParamChanged;
 		addRuneBonus2OPInput.onEndEdit.AddListener(val=>{ OnBonus2OPChanged(val); });
+		addRuneBonus2OPSelector.OnSelectionChanged = OnBonus2ParamChanged;
 		addRuneBonus3OPInput.onEndEdit.AddListener(val=>{ OnBonus3OPChanged(val); });
+		addRuneBonus3OPSelector.OnSelectionChanged = OnBonus3ParamChanged;
 		addRuneBonus4OPInput.onEndEdit.AddListener(val=>{ OnBonus4OPChanged(val); });
+		addRuneBonus4OPSelector.OnSelectionChanged = OnBonus4ParamChanged;
 		addRuneFreeCommentInput.onEndEdit.AddListener(val=>{ OnFreeCommentChanged(val); });
 	}
 
 	public string GetRuneNameString(RuneData data)
 	{
-		return string.Format("{0}番 ★{1} {2}のルーン+{3}", data.no, data.rank, data.type.ToJapaneseString(), data.level);
+		return string.Format("{0}番 ★{1} {2}のルーン+{3}", data.no, data.rank, data.type.ToJpnString(), data.level);
 	}
 
 	/// <summary>
@@ -110,34 +123,40 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			addRuneImage.sprite = GetRuneSprite(data.type);
 
 			// 種類
-			addRuneKindInput.text = "";
+			addRuneKindSelector.SelectedIndex = (int)RuneType.Energy;
 
 			// 番号
-			addRuneNoInput.text = "";
+			addRuneNoSelector.SelectedIndex = 0;
 
 			// レアリティ
-			addRuneRarityInput.text = "";
+			addRuneRaritySelector.SelectedIndex = 0;
 
 			// 強化レベル
-			addRuneLevelInput.text = "";
+			addRuneLevelSelector.SelectedIndex = 0;
 
 			// メインオプション
 			addRuneMainOPInput.text = addRuneMainOPText.text = "";
+			addRuneMainOPSelector.SelectedIndex = 0;
 
 			// サブオプション
 			addRuneSubOPInput.text = addRuneSubOPText.text = "";
+			addRuneSubOPSelector.SelectedIndex = 0;
 
 			// ボーナスオプション1
 			addRuneBonus1OPInput.text = addRuneBonus1OPText.text = "";
+			addRuneBonus1OPSelector.SelectedIndex = 0;
 
 			// ボーナスオプション2
 			addRuneBonus2OPInput.text = addRuneBonus2OPText.text = "";
+			addRuneBonus2OPSelector.SelectedIndex = 0;
 
 			// ボーナスオプション3
 			addRuneBonus3OPInput.text = addRuneBonus3OPText.text = "";
+			addRuneBonus3OPSelector.SelectedIndex = 0;
 
 			// ボーナスオプション4
 			addRuneBonus4OPInput.text = addRuneBonus4OPText.text = "";
+			addRuneBonus4OPSelector.SelectedIndex = 0;
 
 			// コメント欄
 			addRuneFreeCommentInput.text = "";
@@ -153,34 +172,46 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			addRuneImage.sprite = GetRuneSprite(data.type);
 
 			// 種類
-			addRuneKindInput.text = data.type.ToJapaneseString();
+			addRuneKindSelector.SelectedIndex = (int)data.type;
 
 			// 番号
-			addRuneNoInput.text = data.no.ToString();
+			addRuneNoSelector.SelectedIndex = data.no-1;
 
 			// レアリティ
-			addRuneRarityInput.text = data.rank.ToString();
+			addRuneRaritySelector.SelectedIndex = data.rank-1;
 
 			// 強化レベル
-			addRuneLevelInput.text = data.level.ToString();
+			addRuneLevelSelector.SelectedIndex = data.level-1;
 
 			// メインオプション
-			addRuneMainOPInput.text = addRuneMainOPText.text = GetOptionString(data.mainOption);
+			addRuneMainOPText.text = GetOptionString(data.mainOption);
+			addRuneMainOPInput.text = "" + data.mainOption.value;
+			addRuneMainOPSelector.SelectedIndex = GetRuneParamNo(data.mainOption.param);
 
 			// サブオプション
-			addRuneSubOPInput.text = addRuneSubOPText.text = GetOptionString(data.subOption);
+			addRuneSubOPText.text = GetOptionString(data.subOption);
+			addRuneSubOPInput.text = "" + data.subOption.value;
+			addRuneSubOPSelector.SelectedIndex = GetRuneParamNo(data.subOption.param);
 
 			// ボーナスオプション1
-			addRuneBonus1OPInput.text = addRuneBonus1OPText.text = GetOptionString(data.bonusOption[0]);
+			addRuneBonus1OPText.text = GetOptionString(data.bonusOption[0]);
+			addRuneBonus1OPInput.text = "" + data.bonusOption[0].value;
+			addRuneBonus1OPSelector.SelectedIndex = GetRuneParamNo(data.bonusOption[0].param);
 
 			// ボーナスオプション2
-			addRuneBonus2OPInput.text = addRuneBonus2OPText.text = GetOptionString(data.bonusOption[1]);
+			addRuneBonus2OPText.text = GetOptionString(data.bonusOption[1]);
+			addRuneBonus2OPInput.text = "" + data.bonusOption[1].value;
+			addRuneBonus2OPSelector.SelectedIndex = GetRuneParamNo(data.bonusOption[1].param);
 
 			// ボーナスオプション3
-			addRuneBonus3OPInput.text = addRuneBonus3OPText.text = GetOptionString(data.bonusOption[2]);
+			addRuneBonus3OPText.text = GetOptionString(data.bonusOption[2]);
+			addRuneBonus3OPInput.text = "" + data.bonusOption[2].value;
+			addRuneBonus3OPSelector.SelectedIndex = GetRuneParamNo(data.bonusOption[2].param);
 
 			// ボーナスオプション4
-			addRuneBonus4OPInput.text = addRuneBonus4OPText.text = GetOptionString(data.bonusOption[3]);
+			addRuneBonus4OPText.text = GetOptionString(data.bonusOption[3]);
+			addRuneBonus4OPInput.text = "" + data.bonusOption[3].value;
+			addRuneBonus4OPSelector.SelectedIndex = GetRuneParamNo(data.bonusOption[3].param);
 
 			// コメント欄
 			addRuneFreeCommentInput.text = data.owner==null ? "" : data.owner;// nullだとエラーになる
@@ -196,13 +227,14 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 
 	public void OnAddRuneOK()
 	{
-		// 同一ルーンがないかチェック
-
+		// TODO : 同一ルーンがないかチェック
 
 
 		if (isAddRune)
 		{
 			// 新規追加
+			if (addRuneData.key == -1)
+				addRuneData.key = Data.GetRuneKey();
 			Data.Instance.inv.runes.Add(addRuneData);
 		}
 		else
@@ -228,14 +260,14 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			}
 			DialogCanvas.Create(message, Color.black, ()=>{
 				AddRuneInitialize(null);
-				if (runeListCanvas.enabled) Refresh();
+				if (runeListCanvas.enabled) refreshFlag=true;
 			});
 		}
 	}
 
-	public RuneOption ValidateRuneOption(string value)
+	public int ValidateRuneOption(string value)
 	{
-		RuneOption op = new RuneOption();
+		if (string.IsNullOrEmpty(value)) return 0;
 
 		// スペースとか改行は除外
 		value = value.Trim();
@@ -262,35 +294,27 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		try {
 			Regex re = new Regex(@"[^0-9]");
 			string numValue = re.Replace(value, "");
-			op.value = System.Int32.Parse(numValue);
+			return System.Int32.Parse(numValue);
 		}
 		catch (System.Exception e){
 			Debug.LogError(e.ToString());
+			return 0;
 		}
-		Debug.Log("number : "+ op.value);
+	}
 
-		// %付き?
-		bool hasPercent = value.Contains("%");
+	public void OnKindChanged(int value)
+	{
+		if (value < 0 || value >= System.Enum.GetValues(typeof(RuneType)).Length) {
+			value = (int)RuneType.Energy;
+			addRuneKindSelector.SelectedIndex = (int)RuneType.Energy;
+		}
+		addRuneData.type = (RuneType)value;
 
-		// パラメタ種類を取り出す
-		if (value.Contains("攻撃") || value.Contains("ATK") || value.Contains("atk")|| value.Contains("kougeki"))
-			op.param = hasPercent ? RuneParam.Atk_Percent : RuneParam.Atk_Flat;
-		else if (value.Contains("防御") || value.Contains("DEF") || value.Contains("def")|| value.Contains("bougyo"))
-			op.param = hasPercent ? RuneParam.Def_Percent : RuneParam.Def_Flat;
-		else if (value.Contains("体力") || value.Contains("HP") || value.Contains("hp")|| value.Contains("tairyoku"))
-			op.param = hasPercent ? RuneParam.HP_Percent : RuneParam.HP_Flat;
-		else if (value.Contains("クリ率") || value.Contains("CRI Rate") || value.Contains("cri rate")|| value.Contains("kuriritu"))
-			op.param = RuneParam.Cri;
-		else if (value.Contains("クリダメ") || value.Contains("CRI Dmg") || value.Contains("cri dmg")|| value.Contains("kuridame"))
-			op.param = RuneParam.CriDmg;
-		else if (value.Contains("的中") || value.Contains("ACC") || value.Contains("acc")|| value.Contains("tekityuu"))
-			op.param = RuneParam.Acc;
-		else if (value.Contains("抵抗") || value.Contains("RES") || value.Contains("res")|| value.Contains("teikou"))
-			op.param = RuneParam.Reg;
-		else if (value.Contains("速度") || value.Contains("SPD") || value.Contains("spd")|| value.Contains("sokudo"))
-			op.param = RuneParam.Spd;
-
-		return op;
+		// ルーン名更新
+		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJpnString(), addRuneData.level);
+		addRuneNameText.text = runeName;
+		// ルーン画像更新
+		addRuneImage.sprite = GetRuneSprite(addRuneData.type);
 	}
 
 	public void OnKindChanged(string value)
@@ -330,16 +354,16 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			addRuneData.type = (RuneType)System.Enum.Parse(typeof(RuneType), value);
 		} catch(System.Exception e) {
 			Debug.LogError(e.ToString());
-			addRuneKindInput.text = addRuneData.type.ToJapaneseString();
+//			addRuneKindInput.text = addRuneData.type.ToJpnString();
 		}
 		// ルーン名更新
-		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJapaneseString(), addRuneData.level);
+		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJpnString(), addRuneData.level);
 		addRuneNameText.text = runeName;
 		// ルーン画像更新
 		addRuneImage.sprite = GetRuneSprite(addRuneData.type);
 	}
 		
-	public int GetFlatValue(int rarity, int level, int no)
+	public int GetFlatValue(int rarity, int level, int no, RuneParam param)
 	{
 		if (no == 1 || no == 3)
 		{
@@ -525,6 +549,9 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 				return 0;
 			}
 		}
+		else {
+			
+		}
 		return 0;
 	}
 
@@ -533,216 +560,173 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		// 1, 3, 5番の場合はメインOP固定
 		if (addRuneData.no == 1)
 		{
-			int val = GetFlatValue(addRuneData.rank, addRuneData.level, addRuneData.no);
-			addRuneMainOPInput.text = addRuneMainOPText.text = "攻撃+" + val;
+			int val = GetFlatValue(addRuneData.rank, addRuneData.level, addRuneData.no, RuneParam.Atk_Flat);
+			addRuneMainOPInput.text = "" + val;
+			addRuneMainOPSelector.SelectedIndex = GetRuneParamNo(RuneParam.Atk_Flat);
 			addRuneData.mainOption.param = RuneParam.Atk_Flat;
 			addRuneData.mainOption.value = val;
+			addRuneMainOPText.text = GetOptionString(addRuneData.mainOption);
 		}
 		else if (addRuneData.no == 3)
 		{
-			int val = GetFlatValue(addRuneData.rank, addRuneData.level, addRuneData.no);
-			addRuneMainOPInput.text = addRuneMainOPText.text = "防御+" + val;
+			int val = GetFlatValue(addRuneData.rank, addRuneData.level, addRuneData.no, RuneParam.Def_Flat);
+			addRuneMainOPInput.text = "" + val;
+			addRuneMainOPSelector.SelectedIndex = GetRuneParamNo(RuneParam.Def_Flat);
 			addRuneData.mainOption.param = RuneParam.Def_Flat;
 			addRuneData.mainOption.value = val;
+			addRuneMainOPText.text = GetOptionString(addRuneData.mainOption);
 		}
 		else if (addRuneData.no == 5)
 		{
-			int val = GetFlatValue(addRuneData.rank, addRuneData.level, addRuneData.no);
-			addRuneMainOPInput.text = addRuneMainOPText.text = "体力+" + val;
+			int val = GetFlatValue(addRuneData.rank, addRuneData.level, addRuneData.no, RuneParam.HP_Flat);
+			addRuneMainOPInput.text = "" + val;
+			addRuneMainOPSelector.SelectedIndex = GetRuneParamNo(RuneParam.HP_Flat);
 			addRuneData.mainOption.param = RuneParam.HP_Flat;
 			addRuneData.mainOption.value = val;
+			addRuneMainOPText.text = GetOptionString(addRuneData.mainOption);
 		}
 	}
 
-	public void OnNoChanged(string value)
+	public void OnNoChanged(int val)
 	{
-		// 全角数字を半角数字に置換する
-		value = value.Replace("０", "0");
-		value = value.Replace("１", "1");
-		value = value.Replace("２", "2");
-		value = value.Replace("３", "3");
-		value = value.Replace("４", "4");
-		value = value.Replace("５", "5");
-		value = value.Replace("６", "6");
-		value = value.Replace("７", "7");
-		value = value.Replace("８", "8");
-		value = value.Replace("９", "9");
-
-		// 数字を先に取り出す
-		try {
-			Regex re = new Regex(@"[^0-9]");
-			string numValue = re.Replace(value, "");
-			int num = System.Int32.Parse(numValue);
-			if (num >= 1 && num <= 6) {
-				addRuneData.no = num;
-				UpdateMainFlat();
-			} else {
-				addRuneNoInput.text = addRuneData.no.ToString();
-			}
-		}
-		catch (System.Exception e){
-			Debug.LogError(e.ToString());
-			addRuneNoInput.text = addRuneData.no.ToString();
-		}
+		addRuneData.no = val+1;
+		UpdateMainFlat();
 
 		// ルーン名更新
-		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJapaneseString(), addRuneData.level);
+		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJpnString(), addRuneData.level);
 		addRuneNameText.text = runeName;
 	}
 
-	public void OnRarityChanged(string value)
+	public void OnRarityChanged(int value)
 	{
-		// 全角数字を半角数字に置換する
-		value = value.Replace("０", "0");
-		value = value.Replace("１", "1");
-		value = value.Replace("２", "2");
-		value = value.Replace("３", "3");
-		value = value.Replace("４", "4");
-		value = value.Replace("５", "5");
-		value = value.Replace("６", "6");
-		value = value.Replace("７", "7");
-		value = value.Replace("８", "8");
-		value = value.Replace("９", "9");
-
-		// 数字を先に取り出す
-		try {
-			Regex re = new Regex(@"[^0-9]");
-			string numValue = re.Replace(value, "");
-			int num = System.Int32.Parse(numValue);
-
-			if (num >= 1 && num <= 6) {
-				addRuneData.rank = num;
-				UpdateMainFlat();
-			} else {
-				addRuneRarityInput.text = addRuneData.rank.ToString();
-			}
-
-			UpdateMainFlat();
-		}
-		catch (System.Exception e){
-			Debug.LogError(e.ToString());
-			addRuneRarityInput.text = addRuneData.rank.ToString();
-		}
+		addRuneData.rank = value+1;
+		UpdateMainFlat();
 
 		// ルーン名更新
-		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJapaneseString(), addRuneData.level);
+		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJpnString(), addRuneData.level);
 		addRuneNameText.text = runeName;
 	}
 
-	public void OnLevelChanged(string value)
+	public void OnLevelChanged(int val)
 	{
-		// 全角数字を半角数字に置換する
-		value = value.Replace("０", "0");
-		value = value.Replace("１", "1");
-		value = value.Replace("２", "2");
-		value = value.Replace("３", "3");
-		value = value.Replace("４", "4");
-		value = value.Replace("５", "5");
-		value = value.Replace("６", "6");
-		value = value.Replace("７", "7");
-		value = value.Replace("８", "8");
-		value = value.Replace("９", "9");
-
-		// 数字を先に取り出す
-		try {
-			Regex re = new Regex(@"[^0-9]");
-			string numValue = re.Replace(value, "");
-			int num = System.Int32.Parse(numValue);
-
-			if (num >= 1 && num <= 15) {
-				addRuneData.level = num;
-				UpdateMainFlat();
-			} else {
-				addRuneLevelInput.text = addRuneData.level.ToString();
-			}
-			UpdateMainFlat();
-		}
-		catch (System.Exception e){
-			Debug.LogError(e.ToString());
-			addRuneLevelInput.text = addRuneData.level.ToString();
-		}
+		addRuneData.level = val+1;
+		UpdateMainFlat();
 
 		// ルーン名更新
-		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJapaneseString(), addRuneData.level);
+		string runeName = string.Format("{0}番 ★{1} {2}のルーン+{3}", addRuneData.no, addRuneData.rank, addRuneData.type.ToJpnString(), addRuneData.level);
 		addRuneNameText.text = runeName;
+	}
+
+	public int GetRuneParamNo(RuneParam param)
+	{
+		switch (param)
+		{
+		case RuneParam.None: return 0;
+		case RuneParam.HP_Percent: return 1;
+		case RuneParam.HP_Flat: return 2;
+		case RuneParam.Atk_Percent: return 3;
+		case RuneParam.Atk_Flat: return 4;
+		case RuneParam.Def_Percent: return 5;
+		case RuneParam.Def_Flat: return 6;
+		case RuneParam.Spd: return 7;
+		case RuneParam.Cri: return 8;
+		case RuneParam.CriDmg: return 9;
+		case RuneParam.Reg: return 10;
+		case RuneParam.Acc: return 11;
+		}
+		return 0;
+	}
+
+	public RuneParam GetRuneParam(int val)
+	{
+		switch (val)
+		{
+		case 0: return RuneParam.None;
+		case 1: return RuneParam.HP_Percent;
+		case 2: return RuneParam.HP_Flat;
+		case 3: return RuneParam.Atk_Percent;
+		case 4: return RuneParam.Atk_Flat;
+		case 5: return RuneParam.Def_Percent;
+		case 6: return RuneParam.Def_Flat;
+		case 7: return RuneParam.Spd;
+		case 8: return RuneParam.Cri;
+		case 9: return RuneParam.CriDmg;
+		case 10: return RuneParam.Reg;
+		case 11: return RuneParam.Acc;
+		}
+		return RuneParam.HP_Percent;
+	}
+
+	public void OnMainParamChanged(int value)
+	{
+		addRuneData.mainOption.param = GetRuneParam(value);
+		addRuneMainOPText.text = GetOptionString(addRuneData.mainOption);
 	}
 
 	public void OnOptionMainChanged(string value)
 	{
-		Text textField = addRuneMainOPText;
-		if (value == null) {
-			textField.text = "";
-			return;
-		}
-		RuneOption op = ValidateRuneOption(value);
-		// 値の更新
-		addRuneData.mainOption = op;
-		textField.text = GetOptionString(op);
+		addRuneData.mainOption.value = ValidateRuneOption(value);
+		addRuneMainOPText.text = GetOptionString(addRuneData.mainOption);
+	}
+
+	public void OnSubParamChanged(int value)
+	{
+		addRuneData.subOption.param = GetRuneParam(value);
+		addRuneSubOPText.text = GetOptionString(addRuneData.subOption);
 	}
 
 	public void OnOptionSubChanged(string value)
 	{
-		Text textField = addRuneSubOPText;
-		if (value == null) {
-			textField.text = "";
-			return;
-		}
-		RuneOption op = ValidateRuneOption(value);
-		// 値の更新
-		addRuneData.subOption = op;
-		textField.text = GetOptionString(op);
+		addRuneData.subOption.value = ValidateRuneOption(value);
+		addRuneSubOPText.text = GetOptionString(addRuneData.subOption);
+	}
+
+	public void OnBonus1ParamChanged(int value)
+	{
+		addRuneData.bonusOption[0].param = GetRuneParam(value);
+		addRuneBonus1OPText.text = GetOptionString(addRuneData.bonusOption[0]);
 	}
 
 	public void OnBonus1OPChanged(string value)
 	{
-		Text textField = addRuneBonus1OPText;
-		if (value == null) {
-			textField.text = "";
-			return;
-		}
-		RuneOption op = ValidateRuneOption(value);
-		// 値の更新
-		addRuneData.bonusOption[0] = op;
-		textField.text = GetOptionString(op);
+		addRuneData.bonusOption[0].value = ValidateRuneOption(value);
+		addRuneBonus1OPText.text = GetOptionString(addRuneData.bonusOption[0]);
+	}
+
+	public void OnBonus2ParamChanged(int value)
+	{
+		addRuneData.bonusOption[1].param = GetRuneParam(value);
+		addRuneBonus2OPText.text = GetOptionString(addRuneData.bonusOption[1]);
 	}
 
 	public void OnBonus2OPChanged(string value)
 	{
-		Text textField = addRuneBonus2OPText;
-		if (value == null) {
-			textField.text = "";
-			return;
-		}
-		RuneOption op = ValidateRuneOption(value);
-		// 値の更新
-		addRuneData.bonusOption[1] = op;
-		textField.text = GetOptionString(op);
+		addRuneData.bonusOption[1].value = ValidateRuneOption(value);
+		addRuneBonus2OPText.text = GetOptionString(addRuneData.bonusOption[1]);
+	}
+
+	public void OnBonus3ParamChanged(int value)
+	{
+		addRuneData.bonusOption[2].param = GetRuneParam(value);
+		addRuneBonus3OPText.text = GetOptionString(addRuneData.bonusOption[2]);
 	}
 
 	public void OnBonus3OPChanged(string value)
 	{
-		Text textField = addRuneBonus3OPText;
-		if (value == null) {
-			textField.text = "";
-			return;
-		}
-		RuneOption op = ValidateRuneOption(value);
-		// 値の更新
-		addRuneData.bonusOption[2] = op;
-		textField.text = GetOptionString(op);
+		addRuneData.bonusOption[2].value = ValidateRuneOption(value);
+		addRuneBonus3OPText.text = GetOptionString(addRuneData.bonusOption[2]);
+	}
+
+	public void OnBonus4ParamChanged(int value)
+	{
+		addRuneData.bonusOption[3].param = GetRuneParam(value);
+		addRuneBonus4OPText.text = GetOptionString(addRuneData.bonusOption[3]);
 	}
 
 	public void OnBonus4OPChanged(string value)
 	{
-		Text textField = addRuneBonus4OPText;
-		if (value == null) {
-			textField.text = "";
-			return;
-		}
-		RuneOption op = ValidateRuneOption(value);
-		// 値の更新
-		addRuneData.bonusOption[3] = op;
-		textField.text = GetOptionString(op);
+		addRuneData.bonusOption[3].value = ValidateRuneOption(value);
+		addRuneBonus4OPText.text = GetOptionString(addRuneData.bonusOption[3]);
 	}
 
 	public void OnFreeCommentChanged(string value)

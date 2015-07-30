@@ -66,7 +66,7 @@ public class RuneItem : MonoBehaviour {
 				Destroy(this.gameObject);
 
 				// 画面をリフレッシュ
-				RuneManager.Instance.Refresh();
+				RuneManager.Instance.refreshFlag=true;
 			}, (flag)=>{});
 		} else {
 			// このデータを削除する
@@ -78,7 +78,7 @@ public class RuneItem : MonoBehaviour {
 			Destroy(this.gameObject);
 
 			// 画面をリフレッシュ
-			RuneManager.Instance.Refresh();
+			RuneManager.Instance.refreshFlag=true;
 		}
 	}
 

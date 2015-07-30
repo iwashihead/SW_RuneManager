@@ -121,6 +121,7 @@ namespace SW
 	/// </summary>
 	public class RuneSet
 	{
+		public int key;
 		public string owner;
 		public int[] index;
 
@@ -242,6 +243,10 @@ namespace SW
 		/// </summary>
 		public string owner;
 
+		/// <summary>
+		/// 一意になるように設定されたキー
+		/// </summary>
+		public int key;
 
 		/// <summary>
 		/// TODO ルーンの価値を数値化して算出する
@@ -452,6 +457,7 @@ namespace SW
 
 		public RuneData()
 		{
+			key = -1;
 			type = RuneType.Energy;
 			no = 1;
 			rank = 1;
@@ -476,33 +482,6 @@ namespace SW
 			// TODO テンプレートマッチングする
 
 			return ret;
-		}
-
-		public override bool Equals (object obj)
-		{
-			RuneData rune = (RuneData)obj;
-			if (rune == null) return false;
-
-			// 検証
-			if (this.owner != rune.owner) return false;
-			if (this.type != rune.type) return false;
-			if (this.rank != rune.rank) return false;
-			if (this.no != rune.no) return false;
-			if (this.level != rune.level) return false;
-			if (!this.mainOption.Equals(rune.mainOption)) return false;
-			if (!this.subOption.Equals(rune.subOption)) return false;
-			if (this.bonusOption.Count != rune.bonusOption.Count) return false;
-			if (this.bonusOption.Count >=1 && !this.bonusOption[0].Equals(rune.bonusOption[0])) return false;
-			if (this.bonusOption.Count >=2 && !this.bonusOption[1].Equals(rune.bonusOption[1])) return false;
-			if (this.bonusOption.Count >=3 && !this.bonusOption[2].Equals(rune.bonusOption[2])) return false;
-			if (this.bonusOption.Count >=4 && !this.bonusOption[3].Equals(rune.bonusOption[3])) return false;
-
-			return true;
-		}
-
-		public override int GetHashCode ()
-		{
-			return base.GetHashCode ();
 		}
 
 		public RuneData CopyTo()

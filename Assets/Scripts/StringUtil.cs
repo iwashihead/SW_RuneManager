@@ -7,7 +7,7 @@ namespace SW {
 		/// <summary>
 		/// 日本名を返す
 		/// </summary>
-		public static string ToJapaneseString(this RuneType type)
+		public static string ToJpnString(this RuneType type)
 		{
 			switch (type)
 			{
@@ -63,7 +63,7 @@ namespace SW {
 		/// <summary>
 		/// 日本語を返す
 		/// </summary>
-		public static string ToJapaneseString(this RuneParam para)
+		public static string ToJpnString(this RuneParam para)
 		{
 			switch (para)
 			{

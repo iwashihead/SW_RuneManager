@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using System;
 using SW;
 
+/// <summary>
+/// データの管理クラス
+/// セーブとロードを行う、データの保存先はPlayerPrefsを使用している
+/// 形式はJson、プラグインとしてJsonFxを使用
+/// </summary>
 public class Data : SingletonObject<Data> {
 	/// <summary>
 	/// 所持ルーン一覧
@@ -16,20 +21,6 @@ public class Data : SingletonObject<Data> {
 	{
 		// データ読み込み
 		Load();
-
-		// 読み込みに失敗しても動くようにする
-		if (inv == null) {
-			Debug.Log("Data Null");
-			inv = new RuneInventory();
-		}
-		if (inv.runes == null) {
-			Debug.Log("Runes Null");
-			inv.runes = new List<RuneData>();
-		}
-		if (inv.runeSets == null) {
-			Debug.Log("RuneSets Null");
-			inv.runeSets = new List<RuneSet>();
-		}
 	}
 
 	/// <summary>
@@ -50,7 +41,7 @@ public class Data : SingletonObject<Data> {
 	}
 
 	/// <summary>
-	/// 所持者をキーにルーンセットを取得する、ない場合はnullが返る
+	/// 所持者(タグ)をキーにルーンセットを取得する、ない場合はnullが返る
 	/// </summary>
 	public static RuneSet GetRuneSet(string owner)
 	{
@@ -121,9 +112,70 @@ public class Data : SingletonObject<Data> {
 		{
 			Debug.LogError(e.ToString());
 
+			if (Instance.inv == null) Instance.inv = new RuneInventory();
+			if (Instance.inv.runes == null) Instance.inv.runes = new List<RuneData>();
+			if (Instance.inv.runeSets == null) Instance.inv.runeSets = new List<RuneSet>();
+
 			return true;
 		}
 
+		if (Instance.inv == null) Instance.inv = new RuneInventory();
+		if (Instance.inv.runes == null) Instance.inv.runes = new List<RuneData>();
+		if (Instance.inv.runeSets == null) Instance.inv.runeSets = new List<RuneSet>();
+
+		// キーの割り当て
+		AssignKey();
+
 		return false;
+	}
+
+	public static int GetRuneKey()
+	{
+		int key = UnityEngine.Random.Range(0, int.MaxValue);
+		if (Instance.inv.runes != null)
+		{
+			while ( Instance.inv.runes.Find(a=>a.key==key) != null )
+			{
+				key = UnityEngine.Random.Range(0, int.MaxValue);
+			}
+		}
+		return key;
+	}
+
+	public static int GetRuneSetKey()
+	{
+		int key = UnityEngine.Random.Range(0, int.MaxValue);
+		if (Instance.inv.runeSets != null)
+		{
+			while ( Instance.inv.runeSets.Find(a=>a.key==key) != null )
+			{
+				key = UnityEngine.Random.Range(0, int.MaxValue);
+			}
+		}
+		return key;
+	}
+
+	// keyを割り当てる
+	public static void AssignKey()
+	{
+		bool hasChange = false;
+		Data.Instance.inv.runes.ForEach(a=>{
+			if(a.key == -1) {
+				hasChange=true;
+				a.key = GetRuneKey();
+			}
+		});
+		Data.Instance.inv.runeSets.ForEach(a=>{
+			if(a.key == -1) {
+				hasChange=true;
+				a.key = GetRuneSetKey();
+			}
+		});
+
+		if (hasChange)
+		{
+			// 値が変わっていたらセーブする
+			Data.Save();
+		}
 	}
 }

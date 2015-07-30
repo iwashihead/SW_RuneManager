@@ -19,4 +19,9 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		AddRuneDisable();
 		RuneListInitialize();
 	}
+
+	void LateUpdate()
+	{
+		if (refreshFlag) Refresh();
+	}
 }
