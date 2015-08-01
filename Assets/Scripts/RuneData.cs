@@ -6,6 +6,7 @@ namespace SW
 {
 	public struct Status
 	{
+		public static Status One = new Status(1,1,1,1,1,1,1,1);
 		public int hp;
 		public int atk;
 		public int def;
@@ -14,6 +15,18 @@ namespace SW
 		public int cdmg;
 		public int res;
 		public int acc;
+
+		public Status (int hp, int atk, int def, int spd, int cri, int cdmg, int res, int acc )
+		{
+			this.hp = hp;
+			this.atk = atk;
+			this.def = def;
+			this.cri = cri;
+			this.spd = spd;
+			this.cdmg = cdmg;
+			this.res = res;
+			this.acc = acc;
+		}
 	}
 
 	/// <summary>
@@ -161,24 +174,30 @@ namespace SW
 			int cdmg = GetTotalCRIDMG(baseCriDmg);
 
 			float nonCriDmg = atk * (1f - (float)cri/100);
-			float criDmg = atk * (1f+cdmg/100) * (float)cri/100;
+			float criDmg = atk * (1f+cdmg/100) * (float)(cri)/100;
 
 			return Mathf.CeilToInt((nonCriDmg + criDmg)*10f);
 		}
 
 		public int GetDefencePoint(int baseHp, int baseDef)
 		{
-			return Mathf.CeilToInt( GetTotalHP(baseHp) * GetTotalDEF(baseDef) * 0.00125f );
+			return Mathf.CeilToInt( GetTotalHP(baseHp) * GetTotalDEF(baseDef) * 0.0008f );
 		}
 
-		public int GetTotalValuePoint(Status status)
+		public int GetTotalValuePoint(Status status, Status weight)
 		{
-			int ret = GetAttackPoint(status.atk, status.cri, status.cdmg);
-			ret += GetDefencePoint(status.hp, status.def);
-			ret += GetTotalRES(status.res) * 100;
-			ret += GetTotalACC(status.acc) * 100;
-			ret *= Mathf.CeilToInt((float)GetTotalSPD(status.spd) * 0.8f * 0.01f);
-			return ret;
+			int atk = GetAttackPoint(status.atk, status.cri, status.cdmg);
+			atk += Mathf.CeilToInt(GetTotalATK(status.atk) * (weight.atk-1) * 0.6f);
+			atk += GetTotalCRI(status.cri) * (weight.cri-1) * 60;
+			atk += GetTotalCRIDMG(status.cdmg) * (weight.cdmg-1) * 30;
+			int def = GetDefencePoint(status.hp, status.def) * weight.hp * weight.def;
+			int spd = GetTotalSPD(status.spd) * 35 * weight.spd;
+			int res = GetTotalRES(status.res) * 50 * weight.res;
+			int acc = GetTotalACC(status.acc) * 50 * weight.acc;
+
+			int total = atk+def+spd+res+acc;
+
+			return total;
 		}
 
 		public int GetTotalATK(int baseVal)
@@ -354,7 +373,7 @@ namespace SW
 		/// TODO ルーンの価値を数値化して算出する
 		/// </summary>
 		public int GetValue() {
-			return GetValue(1f,1f,1f,1f,1f,1f,1f,1f);
+			return GetValue(Status.One);
 		}
 
 		/// <summary>
@@ -571,20 +590,20 @@ namespace SW
 		/// <param name="dmg_w">Dmg w.</param>
 		/// <param name="res_w">Res w.</param>
 		/// <param name="acc_w">Acc w.</param>
-		public int GetValue(float hp_w, float atk_w, float def_w, float spd_w, float cri_w, float dmg_w, float res_w, float acc_w)
+		public int GetValue(Status weight)
 		{
 			float val = 0f;
-			val += ATK_Percent * ATK_PERCENT_VAL * atk_w;
-			val += ATK_Flat * ATK_FLAT_VAL * atk_w;
-			val += HP_Percent * HP_PERCENT_VAL * hp_w;
-			val += HP_Flat * HP_FLAT_VAL * hp_w;
-			val += DEF_Percent * DEF_PERCENT_VAL * def_w;
-			val += DEF_Flat * DEF_FLAT_VAL * def_w;
-			val += SPD * SPD_VAL * spd_w;
-			val += ACC * ACC_VAL * acc_w;
-			val += RES * RES_VAL * res_w;
-			val += CRI * CRI_VAL * cri_w;
-			val += CRIDMG * CRIDMG_VAL * dmg_w;
+			val += ATK_Percent * ATK_PERCENT_VAL * weight.atk;
+			val += ATK_Flat * ATK_FLAT_VAL * weight.atk;
+			val += HP_Percent * HP_PERCENT_VAL * weight.hp;
+			val += HP_Flat * HP_FLAT_VAL * weight.hp;
+			val += DEF_Percent * DEF_PERCENT_VAL * weight.def;
+			val += DEF_Flat * DEF_FLAT_VAL * weight.def;
+			val += SPD * SPD_VAL * weight.spd;
+			val += ACC * ACC_VAL * weight.acc;
+			val += RES * RES_VAL * weight.res;
+			val += CRI * CRI_VAL * weight.cri;
+			val += CRIDMG * CRIDMG_VAL * weight.cdmg;
 
 			return (int)val;
 		}

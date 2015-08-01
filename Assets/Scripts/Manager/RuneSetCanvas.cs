@@ -113,6 +113,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 
 	public void RuneSetInitialize()
 	{
+		isSelectionMode = false;
 		runeSetCanvas.enabled = true;
 		RuneDetail(currentRuneSet.runes[ currentChangingRune ]);
 		RunePreview(currentRuneSet);
@@ -324,7 +325,6 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 	{
 		if (runeSetMonsterRarity.SelectedIndex != 0 && runeSetMonsterElement.SelectedIndex != 0)
 		{
-			Debug.Log("add race");
 			runeSetMonsterRace.Interactable = true;
 
 			// レアリティと属性から、存在するモンスター種別を全取得
@@ -439,7 +439,8 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		// 攻撃指数
 		int attackPoint = currentRuneSet.GetAttackPoint(st.atk, st.cri, st.cdmg);
 		int defencePoint = currentRuneSet.GetDefencePoint(st.hp, st.def);
-		int totalPoint = currentRuneSet.GetTotalValuePoint(st);
+		Status weight = Status.One;
+		int totalPoint = currentRuneSet.GetTotalValuePoint(st, weight);
 		attackPointText.text = string.Format("攻撃指数 : {0}", attackPoint);
 		defencePointText.text = string.Format("耐久指数 : {0}", defencePoint);
 		totalPointText.text = string.Format("総合戦力 : {0}", totalPoint);
@@ -698,21 +699,22 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 
 		// 優先ステータス
 		// 各ステータスに評価係数を用意、優先順位が高いステータスには係数を高く設定する
-		float hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w;
-		hp_w = atk_w = def_w = spd_w = cri_w = dmg_w = res_w = acc_w = 1f;
+		Status wt = new Status();
+		wt.hp = wt.atk = wt.def = wt.spd = wt.cri = wt.cdmg = wt.res = wt.acc = 1;
 
 		if (runeSetPrimary3.SelectedIndex != 0)
 		{
 			int index = runeSetPrimary3.SelectedIndex;
 			switch (index)
 			{
-			case 1: hp_w = 2f; break;
-			case 2: atk_w = 2f; break;
-			case 3: def_w = 2f; break;
-			case 4: cri_w = 2f; break;
-			case 5: dmg_w = 2f; break;
-			case 6: res_w = 2f; break;
-			case 7: acc_w = 2f; break;
+			case 1: wt.hp =  6; break;
+			case 2: wt.atk = 6; break;
+			case 3: wt.def = 6; break;
+			case 4: wt.spd = 6; break;
+			case 5: wt.cri = 6; break;
+			case 6: wt.cdmg= 6; break;
+			case 7: wt.res = 6; break;
+			case 8: wt.acc = 6; break;
 			}
 		}
 		if (runeSetPrimary2.SelectedIndex != 0)
@@ -720,13 +722,14 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			int index = runeSetPrimary2.SelectedIndex;
 			switch (index)
 			{
-			case 1: hp_w = 3f; break;
-			case 2: atk_w = 3f; break;
-			case 3: def_w = 3f; break;
-			case 4: cri_w = 3f; break;
-			case 5: dmg_w = 3f; break;
-			case 6: res_w = 3f; break;
-			case 7: acc_w = 3f; break;
+			case 1: wt.hp =  8; break;
+			case 2: wt.atk = 8; break;
+			case 3: wt.def = 8; break;
+			case 4: wt.spd = 8; break;
+			case 5: wt.cri = 8; break;
+			case 6: wt.cdmg= 8; break;
+			case 7: wt.res = 8; break;
+			case 8: wt.acc = 8; break;
 			}
 		}
 		if (runeSetPrimary1.SelectedIndex != 0)
@@ -734,13 +737,14 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			int index = runeSetPrimary1.SelectedIndex;
 			switch (index)
 			{
-			case 1: hp_w = 4f; break;
-			case 2: atk_w = 4f; break;
-			case 3: def_w = 4f; break;
-			case 4: cri_w = 4f; break;
-			case 5: dmg_w = 4f; break;
-			case 6: res_w = 4f; break;
-			case 7: acc_w = 4f; break;
+			case 1: wt.hp =  10; break;
+			case 2: wt.atk = 10; break;
+			case 3: wt.def = 10; break;
+			case 4: wt.spd = 10; break;
+			case 5: wt.cri = 10; break;
+			case 6: wt.cdmg= 10; break;
+			case 7: wt.res = 10; break;
+			case 8: wt.acc = 10; break;
 			}
 		}
 
@@ -752,6 +756,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		List<RuneData> rune5 = new List<RuneData>( list.FindAll(a=>a.no==5) );
 		List<RuneData> rune6 = new List<RuneData>( list.FindAll(a=>a.no==6) );
 
+		// 要素が0個にならないよう空ルーンを追加
 		if (rune1.Count==0) rune1.Add(RuneData.BlankRune);
 		if (rune2.Count==0) rune2.Add(RuneData.BlankRune);
 		if (rune3.Count==0) rune3.Add(RuneData.BlankRune);
@@ -759,22 +764,18 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		if (rune5.Count==0) rune5.Add(RuneData.BlankRune);
 		if (rune6.Count==0) rune6.Add(RuneData.BlankRune);
 
-		rune1.Sort( (a,b)=>{ return a.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w)
-			- b.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w); } );
-		rune2.Sort( (a,b)=>{ return a.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w)
-			- b.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w); } );
-		rune3.Sort( (a,b)=>{ return a.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w)
-			- b.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w); } );
-		rune4.Sort( (a,b)=>{ return a.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w)
-			- b.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w); } );
-		rune5.Sort( (a,b)=>{ return a.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w)
-			- b.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w); } );
-		rune6.Sort( (a,b)=>{ return a.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w)
-			- b.GetValue(hp_w, atk_w, def_w, spd_w, cri_w, dmg_w, res_w, acc_w); } );
+		// 優先ステータス順になるようソートする
+		rune1.Sort( (a,b)=>{ return b.GetValue(wt) - a.GetValue(wt); } );
+		rune2.Sort( (a,b)=>{ return b.GetValue(wt) - a.GetValue(wt); } );
+		rune3.Sort( (a,b)=>{ return b.GetValue(wt) - a.GetValue(wt); } );
+		rune4.Sort( (a,b)=>{ return b.GetValue(wt) - a.GetValue(wt); } );
+		rune5.Sort( (a,b)=>{ return b.GetValue(wt) - a.GetValue(wt); } );
+		rune6.Sort( (a,b)=>{ return b.GetValue(wt) - a.GetValue(wt); } );
 
+		// 最も良いルーンの組み合わせ情報を保存する変数
 		RuneData[] bestRune = new RuneData[6];
 		int value_max = 0;
-		int maxCout = 5;// 検索の精度に関わる数、価値計算して上位何個までを汲み取るか
+		int maxCout = 10;// 検索の精度に関わる数、価値計算して上位何個までを汲み取るか
 		int max1 = Math.Min(rune1.Count, maxCout);
 		int max2 = Math.Min(rune2.Count, maxCout);
 		int max3 = Math.Min(rune3.Count, maxCout);
@@ -782,6 +783,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		int max5 = Math.Min(rune5.Count, maxCout);
 		int max6 = Math.Min(rune6.Count, maxCout);
 
+		// ステータスの取り出し
 		Status st = new Status();
 		Int32.TryParse(runeSetInputHP.text, out st.hp);
 		Int32.TryParse(runeSetInputATK.text, out st.atk);
@@ -873,7 +875,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 								}
 								else {
 									// 総合評価
-									valuePoint = currentRuneSet.GetTotalValuePoint(st);
+									valuePoint = currentRuneSet.GetTotalValuePoint(st, wt);
 								}
 
 								if (value_max < valuePoint) {

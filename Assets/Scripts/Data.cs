@@ -103,7 +103,7 @@ public class Data : SingletonObject<Data> {
 	{
 		// データの初期化
 		if (string.IsNullOrEmpty(json) == false) {
-			Debug.Log("### data json ###\n" + json);
+//			Debug.Log("### data json ###\n" + json);
 		}
 
 		// データの復元
