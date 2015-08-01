@@ -80,6 +80,27 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		runeSetMonsterRace.Interactable = false;
 		StatusUpdate();
 
+		// レアリティと属性から、存在するモンスター種別を全取得
+		runeSetMonsterElement.SelectedIndex = 1;
+		runeSetMonsterRarity.SelectedIndex = 1;
+		runeSetMonsterRace.Interactable = true;
+		runeSetMonsterRace.SelectedIndex = 1;
+		Element element = (Element)(runeSetMonsterElement.SelectedIndex);
+		int rarity = runeSetMonsterRarity.SelectedIndex;
+		List<string> allRaces = new List<string>(new string[]{ "" });
+		foreach (MonsterData dto in Data.Instance.mon.mons)
+		{
+			if (dto.element != element) continue;
+			if (dto.rarity != rarity) continue;
+			if (allRaces.Contains(dto.race)==false) {
+				allRaces.Add(dto.race);
+			}
+		}
+
+		// アイテム追加
+		runeSetMonsterRace.ClearItems();
+		runeSetMonsterRace.AddItems( allRaces.ToArray() );
+
 		// ルーン条件
 		runeSetKind1.OnSelectionChanged = OnRuneKind1Changed;
 		runeSetKind2.OnSelectionChanged = OnRuneKind2Changed;
@@ -295,7 +316,6 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 	{
 		if (runeSetMonsterRarity.SelectedIndex != 0 && runeSetMonsterElement.SelectedIndex != 0)
 		{
-			Debug.Log("add race");
 			runeSetMonsterRace.Interactable = true;
 
 			// レアリティと属性から、存在するモンスター種別を全取得
@@ -587,7 +607,6 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 
 		// ルーンの種類
 		List<RuneType> runeTypes = new List<RuneType>();
-		int runeSetCount = 0;
 		if (runeSetKind1.SelectedIndex != 0) {
 			RuneType t = GetRuneTypeFromString(runeSetKind1.Items[ runeSetKind1.SelectedIndex ].Caption);
 			runeTypes.Add(t);
