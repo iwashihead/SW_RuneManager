@@ -31,6 +31,7 @@ public class RuneItem : MonoBehaviour {
 
 	public Button EditButton;
 	public Button DeleteButton;
+	public Button SelectButton;
 
 	// Use this for initialization
 	void Start () {
@@ -82,12 +83,16 @@ public class RuneItem : MonoBehaviour {
 		}
 	}
 
-	public void OnDecide()
+	public void OnSelect()
 	{
-		
+		// ルーンセットを変更する
+		RuneManager.Instance.currentRuneSet.runes[ data.no-1 ] = data;
+		// ルーンリストのモードを戻す
+		RuneManager.Instance.isSelectionMode = false;
+		RuneManager.Instance.RuneSetInitialize();
 	}
 
-	public void Setup( RuneData srcData )
+	public void Setup( RuneData srcData, bool isSelectionMode )
 	{
 		this.data = srcData;
 
@@ -142,6 +147,24 @@ public class RuneItem : MonoBehaviour {
 		bonus4Panel.color = GetParamColor(bonusOP[3].param);
 
 		valueText.text = "" + (data.TotalValue).ToString() + " Pt";
+
+		Refresh(isSelectionMode);
+	}
+
+	public void Refresh(bool isSelectionMode)
+	{
+		if (isSelectionMode)
+		{
+			EditButton.gameObject.SetActive(false);
+			DeleteButton.gameObject.SetActive(false);
+			SelectButton.gameObject.SetActive(true);
+		}
+		else
+		{
+			EditButton.gameObject.SetActive(true);
+			DeleteButton.gameObject.SetActive(true);
+			SelectButton.gameObject.SetActive(false);
+		}
 	}
 
 	public Color GetParamColor(RuneParam param)

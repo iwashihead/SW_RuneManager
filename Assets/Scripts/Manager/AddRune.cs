@@ -261,6 +261,11 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			DialogCanvas.Create(message, Color.black, ()=>{
 				AddRuneInitialize(null);
 				if (runeListCanvas.enabled) refreshFlag=true;
+				if (runeSetCanvas.enabled) {
+					RunePreview(currentRuneSet);
+					RuneDetail(addRuneData);
+					StatusUpdate();
+				}
 			});
 		}
 	}

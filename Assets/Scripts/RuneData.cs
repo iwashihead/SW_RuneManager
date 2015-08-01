@@ -4,6 +4,18 @@ using System.Collections.Generic;
 
 namespace SW
 {
+	public struct Status
+	{
+		public int hp;
+		public int atk;
+		public int def;
+		public int spd;
+		public int cri;
+		public int cdmg;
+		public int res;
+		public int acc;
+	}
+
 	/// <summary>
 	/// ルーンのパラメーターの種類
 	/// </summary>
@@ -123,7 +135,7 @@ namespace SW
 	{
 		public int key;
 		public string owner;
-		public int[] index;
+		public RuneData[] runes;
 
 		public RuneSet()
 		{
@@ -136,41 +148,131 @@ namespace SW
 		public void Reset()
 		{
 			owner = "";
-			index = new int[6];
-			// -1で初期化
-			for (int i=0; i<6; i++)
-			{
-				index[i] = -1;
-			}
+			runes = new RuneData[6];
 		}
 
 		/// <summary>
-		/// ルーンをセットする
-		/// 正常にセットできた場合はfalse,セットできなかった場合はtrueを返す
+		/// 攻撃指数を取得する
 		/// </summary>
-		public bool Set(int runeIndex)
+		public int GetAttackPoint(int baseAtk, int baseCri, int baseCriDmg)
 		{
-			RuneData rune = Data.GetRune(runeIndex);
-			if (rune == null) { return true; }// 失敗
+			int atk = GetTotalATK(baseAtk);
+			int cri = GetTotalCRI(baseCri);
+			int cdmg = GetTotalCRIDMG(baseCriDmg);
 
-			int no = rune.no;
+			float nonCriDmg = atk * (1f - (float)cri/100);
+			float criDmg = atk * (1f+cdmg/100) * (float)cri/100;
 
-			if (no == 1)
-				index[0] = runeIndex;
-			else if (no == 2)
-				index[1] = runeIndex;
-			else if (no == 3)
-				index[2] = runeIndex;
-			else if (no == 4)
-				index[3] = runeIndex;
-			else if (no == 5)
-				index[4] = runeIndex;
-			else if (no == 6)
-				index[5] = runeIndex;
-			else
-				return true;// 異常
+			return Mathf.CeilToInt((nonCriDmg + criDmg)*10f);
+		}
 
-			return false;// 正常
+		public int GetDefencePoint(int baseHp, int baseDef)
+		{
+			return Mathf.CeilToInt( GetTotalHP(baseHp) * GetTotalDEF(baseDef) * 0.00125f );
+		}
+
+		public int GetTotalValuePoint(Status status)
+		{
+			int ret = GetAttackPoint(status.atk, status.cri, status.cdmg);
+			ret += GetDefencePoint(status.hp, status.def);
+			ret += GetTotalRES(status.res) * 100;
+			ret += GetTotalACC(status.acc) * 100;
+			ret *= Mathf.CeilToInt((float)GetTotalSPD(status.spd) * 0.8f * 0.01f);
+			return ret;
+		}
+
+		public int GetTotalATK(int baseVal)
+		{
+			int percent = 0;
+			int flat = 0;
+			foreach (RuneData rune in runes)
+			{
+				if (rune==null) continue;
+				percent += rune.ATK_Percent;
+				flat += rune.ATK_Flat;
+			}
+			return Mathf.CeilToInt(baseVal * (1f + (float)percent / 100) + flat);
+		}
+
+		public int GetTotalHP(int baseVal)
+		{
+			int percent = 0;
+			int flat = 0;
+			foreach (RuneData rune in runes)
+			{
+				if (rune==null) continue;
+				percent += rune.HP_Percent;
+				flat += rune.HP_Flat;
+			}
+			return Mathf.CeilToInt(baseVal * (1f + (float)percent / 100) + flat);
+		}
+
+		public int GetTotalDEF(int baseVal)
+		{
+			int percent = 0;
+			int flat = 0;
+			foreach (RuneData rune in runes)
+			{
+				if (rune==null) continue;
+				percent += rune.DEF_Percent;
+				flat += rune.DEF_Flat;
+			}
+			return Mathf.CeilToInt(baseVal * (1f + (float)percent / 100) + flat);
+		}
+
+		public int GetTotalSPD(int baseVal)
+		{
+			int ret = baseVal;
+			foreach (RuneData rune in runes)
+			{
+				if (rune==null) continue;
+				ret += rune.SPD;
+			}
+			return ret;
+		}
+
+		public int GetTotalCRI(int baseVal)
+		{
+			int ret = baseVal;
+			foreach (RuneData rune in runes)
+			{
+				if (rune==null) continue;
+				ret += rune.CRI;
+			}
+			return Mathf.Clamp(ret, 0, 100);
+		}
+
+		public int GetTotalCRIDMG(int baseVal)
+		{
+			int ret = baseVal;
+			foreach (RuneData rune in runes)
+			{
+				if (rune==null) continue;
+				ret += rune.CRIDMG;
+			}
+			return ret;
+		}
+
+		public int GetTotalRES(int baseVal)
+		{
+			int ret = baseVal;
+			foreach (RuneData rune in runes)
+			{
+				if (rune==null) continue;
+				ret += rune.RES;
+			}
+			return Mathf.Clamp(ret, 0, 100);
+		}
+
+		public int GetTotalACC(int baseVal)
+		{
+			int ret = baseVal;
+			foreach (RuneData rune in runes)
+			{
+				if (rune==null) continue;
+				ret += rune.ACC;
+			}
+			return Mathf.Clamp(ret, 0, 100);
 		}
 	}
 
@@ -251,7 +353,9 @@ namespace SW
 		/// <summary>
 		/// TODO ルーンの価値を数値化して算出する
 		/// </summary>
-		public int GetValue() { return 0; }
+		public int GetValue() {
+			return GetValue(1f,1f,1f,1f,1f,1f,1f,1f);
+		}
 
 		/// <summary>
 		/// TODO ルーン情報に矛盾がないかチェックする
@@ -455,6 +559,36 @@ namespace SW
 			}
 		}
 
+		/// <summary>
+		/// 各種ステータスに任意の価値の重み付けをして数値化した価値データを返す
+		/// </summary>
+		/// <returns>The value.</returns>
+		/// <param name="hp_w">Hp w.</param>
+		/// <param name="atk_w">Atk w.</param>
+		/// <param name="def_w">Def w.</param>
+		/// <param name="spd_w">Spd w.</param>
+		/// <param name="cri_w">Cri w.</param>
+		/// <param name="dmg_w">Dmg w.</param>
+		/// <param name="res_w">Res w.</param>
+		/// <param name="acc_w">Acc w.</param>
+		public int GetValue(float hp_w, float atk_w, float def_w, float spd_w, float cri_w, float dmg_w, float res_w, float acc_w)
+		{
+			float val = 0f;
+			val += ATK_Percent * ATK_PERCENT_VAL * atk_w;
+			val += ATK_Flat * ATK_FLAT_VAL * atk_w;
+			val += HP_Percent * HP_PERCENT_VAL * hp_w;
+			val += HP_Flat * HP_FLAT_VAL * hp_w;
+			val += DEF_Percent * DEF_PERCENT_VAL * def_w;
+			val += DEF_Flat * DEF_FLAT_VAL * def_w;
+			val += SPD * SPD_VAL * spd_w;
+			val += ACC * ACC_VAL * acc_w;
+			val += RES * RES_VAL * res_w;
+			val += CRI * CRI_VAL * cri_w;
+			val += CRIDMG * CRIDMG_VAL * dmg_w;
+
+			return (int)val;
+		}
+
 		public RuneData()
 		{
 			key = -1;
@@ -470,6 +604,11 @@ namespace SW
 			bonusOption.Add(new RuneOption(RuneParam.None, 0));
 			bonusOption.Add(new RuneOption(RuneParam.None, 0));
 		}
+
+		/// <summary>
+		/// 空のルーン
+		/// </summary>
+		public static readonly RuneData BlankRune = new RuneData();
 
 		/// <summary>
 		/// ルーンの情報を画像から解析する

@@ -12,12 +12,14 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 	{
 		AddRuneAwake();
 		RuneListAwake();
+		RuneSetAwake();
 	}
 
 	void Start()
 	{
 		AddRuneDisable();
 		RuneListInitialize();
+		RuneSetClose();
 	}
 
 	void LateUpdate()

@@ -14,6 +14,7 @@ public class Data : SingletonObject<Data> {
 	/// 所持ルーン一覧
 	/// </summary>
 	public RuneInventory inv;
+	public MonsterMaster mon;
 
 	public static string DATA_KEY = "runeData";
 

@@ -86,8 +86,20 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 
 	private int runeCount;
 	public bool refreshFlag;
+	private bool _isSelectionMode;
+	public bool isSelectionMode
+	{
+		get { return _isSelectionMode; }
+		set {
+			_isSelectionMode = value;
+			foreach(RuneItem item in runeItems)
+			{
+				item.Refresh(_isSelectionMode);
+			}
+		}
+	}
 
-	public void RuneListInitialize()
+	public void RuneListInitialize(bool isSelectionMode = false, int no = -1, params RuneType[] runeType)
 	{
 		runeListCanvas.enabled = true;
 		currentPage = 0;
@@ -95,9 +107,54 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 		sortParam = RuneParam.None;
 		sortOrder = true;
 
-		// フィルターを全てONに、関数内で自動でリフレッシュされるので呼ぶ必要なし
-		MarkAllNoFilter();
-		MarkAllRuneFilter();
+		// フィルターを全てONに
+		if (no == -1)
+		{
+			MarkAllNoFilter();
+		}
+		else {
+			ClearNoFilter();
+			switch (no)
+			{
+			case 1: toggleNo1.isOn = true; break;
+			case 2: toggleNo2.isOn = true; break;
+			case 3: toggleNo3.isOn = true; break;
+			case 4: toggleNo4.isOn = true; break;
+			case 5: toggleNo5.isOn = true; break;
+			case 6: toggleNo6.isOn = true; break;
+			}
+		}
+		// ルーン種別
+		if (runeType==null || runeType.Length==0)
+		{
+			MarkAllRuneFilter();
+		}
+		else
+		{
+			ClearRuneFilter();
+			foreach (RuneType t in runeType)
+			{
+				switch (t)
+				{
+				case RuneType.Blade: toggleBlade.isOn = true; break;
+				case RuneType.Despair: toggleDespair.isOn = true; break;
+				case RuneType.Endure: toggleEndure.isOn = true; break;
+				case RuneType.Energy: toggleEnergy.isOn = true; break;
+				case RuneType.Fatal: toggleFatal.isOn = true; break;
+				case RuneType.Focus: toggleFocus.isOn = true; break;
+				case RuneType.Guard: toggleGuard.isOn = true; break;
+				case RuneType.Nemesis: toggleNemesis.isOn = true; break;
+				case RuneType.Rage: toggleRage.isOn = true; break;
+				case RuneType.Revenge: toggleRevenge.isOn = true; break;
+				case RuneType.Shield: toggleShield.isOn = true; break;
+				case RuneType.Swift: toggleSwift.isOn = true; break;
+				case RuneType.Vampire: toggleVampire.isOn = true; break;
+				case RuneType.Violent: toggleViolent.isOn = true; break;
+				case RuneType.Will: toggleWill.isOn = true; break;
+				}
+			}
+		}
+		this.isSelectionMode = isSelectionMode;
 	}
 
 	public void RuneListClose()
@@ -261,7 +318,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 			item.transform.localScale = Vector3.one;
 
 			// セットアップ
-			item.Setup( runeList[i] );
+			item.Setup( runeList[i], isSelectionMode );
 
 			runeItems.Add(item);
 		}

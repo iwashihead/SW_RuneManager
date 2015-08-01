@@ -23,7 +23,7 @@ public partial class RuneManager : SingletonObject<RuneManager> {
 
 	public void OnSetup()
 	{
-
+		RuneSetInitialize();
 	}
 
 	public void OnImport()
